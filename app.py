@@ -63,6 +63,7 @@ Your areas include:
 - Implementation of telecom standards and protocols
 - Integration of telecom systems and platforms
 - Design and architecture of telecom networks
+- Design 5G and 4G networks
 
 
 For simple definition questions such as:
@@ -151,13 +152,32 @@ def ask():
         # ------------------------------------------
         # Limit conversation history
         # ------------------------------------------
+        #
+        # Bedrock Converse requires the messages list to
+        # start with a user message. MAX_HISTORY may otherwise
+        # trim away the first user message and leave an assistant
+        # message at the beginning.
+        #
+        # Keep only complete user/assistant pairs plus the
+        # current user message.
 
-        history = history[-MAX_HISTORY:]
+        if MAX_HISTORY > 0:
+            history = history[-MAX_HISTORY:]
+
+        # Safety check: the first message MUST be from the user.
+        # If trimming caused an assistant message to become first,
+        # remove leading assistant messages.
+        while history and history[0].get("role") != "user":
+            history.pop(0)
 
 
         # ------------------------------------------
         # Call Bedrock
         # ------------------------------------------
+
+        # Final safety check before calling Bedrock.
+        if not history or history[0].get("role") != "user":
+            raise ValueError("Conversation history must start with a user message.")
 
         response = bedrock.converse(
 
