@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Telecom AI Assistant</title>
+</head>
+
+<body>
+
+    <h1>Telecom AI Assistant</h1>
+	
+	<textarea
+        id="question"
+        placeholder="Ask your question..."
+    ></textarea>
+	
+	<br>
+
+    <button onclick="askAI()">
+        Ask AI
+    </button>
+
+    <div id="response">
+        AI response will appear here...
+    </div>
+	
+	<script>
+
+        async function askAI() {
+
+            const question =
+                document.getElementById("question").value;
+
+            if (!question) {
+                alert("Please enter a question.");
+                return;
+            }
+
+            document.getElementById("response").innerText =
+                "Thinking...";
+
+            try {
+
+                const response = await fetch("/ask", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        question: question
+                    })
+
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+
+                    document.getElementById("response").innerText =
+                        "Error: " + data.error;
+
+                } else {
+
+                    document.getElementById("response").innerText =
+                        data.answer;
+
+                }
+
+            } catch (error) {
+
+                document.getElementById("response").innerText =
+                    "Something went wrong: " + error;
+
+            }
+
+        }
+
+    </script>
+	
+</body>
+
+</html>
