@@ -2,78 +2,254 @@
 <html>
 
 <head>
-    <title>Telecom AI Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telecom AI Assistant | AWS Bedrock</title>
 
     <style>
+        * { box-sizing: border-box; }
+
         body {
+            margin: 0;
+            min-height: 100vh;
             font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
+            background: linear-gradient(135deg, #eef4ff, #f8fbff);
+            color: #172033;
+        }
+
+        .container {
+            width: min(1100px, 92%);
+            margin: auto;
+            padding: 42px 0 30px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 20px;
+            background: #e4edff;
+            color: #2457a6;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
         }
 
         h1 {
-            text-align: center;
+            margin: 0;
+            font-size: clamp(32px, 5vw, 48px);
+            color: #12213f;
+        }
+
+        .subtitle {
+            max-width: 760px;
+            margin: 12px auto 0;
+            color: #5b667a;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e1e7f0;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(28,48,80,.08);
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
         }
 
         textarea {
             width: 100%;
-            height: 120px;
-            padding: 10px;
+            min-height: 145px;
+            resize: vertical;
+            padding: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
             font-size: 16px;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3867c8;
+            box-shadow: 0 0 0 3px rgba(56,103,200,.12);
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
         }
 
         button {
-            margin-top: 15px;
-            padding: 12px 25px;
-            font-size: 16px;
+            border: 0;
+            border-radius: 9px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
         }
 
+        #askButton { background: #2457a6; color: white; }
+        #askButton:hover { background: #1d4789; }
+        #clearButton { background: #eef2f7; color: #334155; }
+
+        button:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
+        .response-card { margin-top: 22px; }
+
+        .response-title {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .response-title h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        #status {
+            font-size: 13px;
+            color: #64748b;
+        }
+
         #response {
-            margin-top: 25px;
-            padding: 20px;
-            background: #f4f4f4;
-            border-radius: 8px;
+            min-height: 90px;
+            padding: 18px;
+            background: #f7f9fc;
+            border: 1px solid #e6ebf2;
+            border-radius: 10px;
             white-space: pre-wrap;
+            line-height: 1.65;
+        }
+
+        .capabilities {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .capability {
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px solid #e7ebf2;
+            border-radius: 10px;
+        }
+
+        .capability strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .capability span {
+            color: #667085;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #7b8799;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .capabilities { grid-template-columns: 1fr; }
+            .card { padding: 20px; }
         }
     </style>
 </head>
 
 <body>
+<div class="container">
 
-    <h1>Telecom AI Assistant</h1>
+    <header class="hero">
+        <div class="badge">AWS Bedrock • Flask • Generative AI</div>
+        <h1>Telecom AI Assistant</h1>
+        <p class="subtitle">
+            AI-powered assistance for telecom operations, BSS/OSS,
+            NOC operations, 4G/5G, incident management, SLA/KPI analysis,
+            charging and network troubleshooting.
+        </p>
+    </header>
 
-    <textarea
-        id="question"
-        placeholder="Ask your question..."
-    ></textarea>
+    <main class="card">
+        <label for="question">Ask a Telecom Question</label>
 
-    <br>
+        <textarea id="question"
+            placeholder="Example: What is MTTR and why is it important in NOC operations?"></textarea>
 
-    <button onclick="askAI()">
-        Ask AI
-    </button>
+        <div class="actions">
+            <button id="askButton" onclick="askAI()">Ask AI</button>
+            <button id="clearButton" onclick="clearChat()">Clear</button>
+        </div>
 
-    <div id="response">
-        AI response will appear here...
-    </div>
+        <section class="response-card">
+            <div class="response-title">
+                <h2>AI Response</h2>
+                <span id="status">Ready</span>
+            </div>
+            <div id="response">
+                Ask a question to get an AI-generated response.
+            </div>
+        </section>
+
+        <section class="capabilities">
+            <div class="capability">
+                <strong>Telecom BSS / OSS</strong>
+                <span>Charging, billing, NOC operations and telecom platforms.</span>
+            </div>
+            <div class="capability">
+                <strong>4G / 5G Operations</strong>
+                <span>Network operations, performance, troubleshooting and optimization.</span>
+            </div>
+            <div class="capability">
+                <strong>Incident & SLA Management</strong>
+                <span>MTTR, SLA, SLI, SLO, KPI and operational support concepts.</span>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        Telecom AI Assistant • Built with Flask and AWS Bedrock
+    </footer>
+</div>
 
 
     <script>
 
         async function askAI() {
 
-            const question =
-                document.getElementById("question").value;
+            const questionElement = document.getElementById("question");
+            const responseElement = document.getElementById("response");
+            const statusElement = document.getElementById("status");
+            const askButton = document.getElementById("askButton");
+
+            const question = questionElement.value.trim();
 
             if (!question) {
                 alert("Please enter a question.");
+                questionElement.focus();
                 return;
             }
 
-            document.getElementById("response").innerText =
-                "Thinking...";
+            askButton.disabled = true;
+            responseElement.innerText = "Thinking...";
+            statusElement.innerText = "Generating response...";
 
             try {
 
@@ -93,26 +269,48 @@
 
                 const data = await response.json();
 
-                if (data.error) {
-
-                    document.getElementById("response").innerText =
-                        "Error: " + data.error;
-
+                if (!response.ok || data.error) {
+                    responseElement.innerText =
+                        "Error: " + (data.error || "Unable to generate a response.");
+                    statusElement.innerText = "Error";
                 } else {
-
-                    document.getElementById("response").innerText =
-                        data.answer;
-
+                    responseElement.innerText = data.answer;
+                    statusElement.innerText = "Response generated";
                 }
 
             } catch (error) {
-
-                document.getElementById("response").innerText =
-                    "Something went wrong: " + error;
-
+                responseElement.innerText =
+                    "Unable to connect to the AI service. Please try again.";
+                statusElement.innerText = "Connection error";
+                console.error(error);
+            } finally {
+                askButton.disabled = false;
             }
-
         }
+
+        async function clearChat() {
+            const responseElement = document.getElementById("response");
+            const statusElement = document.getElementById("status");
+
+            try {
+                const response = await fetch("/clear", { method: "POST" });
+                const data = await response.json();
+
+                responseElement.innerText = data.message || "Chat cleared.";
+                statusElement.innerText = "Ready";
+                document.getElementById("question").value = "";
+            } catch (error) {
+                responseElement.innerText = "Unable to clear the conversation.";
+                statusElement.innerText = "Error";
+                console.error(error);
+            }
+        }
+
+        document.getElementById("question").addEventListener("keydown", function(event) {
+            if (event.ctrlKey && event.key === "Enter") {
+                askAI();
+            }
+        });
 
     </script>
 

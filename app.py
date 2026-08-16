@@ -232,7 +232,10 @@ def ask():
         # Limit history again
         # ------------------------------------------
 
-        history = history[-MAX_HISTORY:]
+        history = history[-4:]
+
+        while history and history[0].get("role") != "user":
+            history.pop(0)
 
 
         # ------------------------------------------
@@ -258,17 +261,11 @@ def ask():
 
     except Exception as e:
 
-        logger.exception(
-            "Error while processing Bedrock request"
-        )
+        logger.exception("Error while processing Bedrock request")
 
         return jsonify({
-
-            "error":
-            "Unable to generate a response. "
-            "Please try again."
-
-        }), 500
+        "error": str(e)
+         }), 500
 
 
 # --------------------------------------------------
