@@ -56,6 +56,14 @@ Your areas include:
 - SLA, SLI, SLO and KPI
 - Network operations
 - Charging and billing
+- Network performance metrics
+- Network monitoring and troubleshooting
+- Network optimization
+- Network security and compliance
+- Implementation of telecom standards and protocols
+- Integration of telecom systems and platforms
+- Design and architecture of telecom networks
+
 
 For simple definition questions such as:
 "What is MTTR?"
